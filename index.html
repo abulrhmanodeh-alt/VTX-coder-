@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VTX - منصة السكربتات</title>
+    <!-- استدعاء Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --bg-color: #0d0d11;
@@ -32,7 +35,6 @@
             flex-direction: column;
         }
 
-        /* Navbar */
         header {
             background-color: var(--card-bg);
             border-bottom: 2px solid var(--accent-purple);
@@ -65,11 +67,10 @@
 
         nav button:hover, nav button.active {
             background-color: var(--accent-purple);
-            color: #white;
+            color: white;
             box-shadow: 0 0 10px var(--accent-purple);
         }
 
-        /* Container */
         .container {
             padding: 2rem;
             max-width: 1200px;
@@ -78,15 +79,9 @@
             flex: 1;
         }
 
-        .section {
-            display: none;
-        }
+        .section { display: none; }
+        .section.active { display: block; }
 
-        .section.active {
-            display: block;
-        }
-
-        /* Title */
         h2 {
             border-bottom: 2px solid var(--accent-purple);
             padding-bottom: 0.5rem;
@@ -94,7 +89,6 @@
             display: inline-block;
         }
 
-        /* Scripts Grid */
         .scripts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -151,11 +145,8 @@
             text-align: center;
         }
 
-        .btn-take:hover {
-            background-color: var(--green-hover);
-        }
+        .btn-take:hover { background-color: var(--green-hover); }
 
-        /* Forms (Login & Admin) */
         .form-box {
             background-color: var(--card-bg);
             padding: 2rem;
@@ -165,16 +156,8 @@
             margin: 0 auto;
         }
 
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); }
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 0.8rem;
@@ -190,10 +173,7 @@
             box-shadow: 0 0 5px var(--accent-purple);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            height: 120px;
-        }
+        .form-group textarea { resize: vertical; height: 120px; }
 
         .btn-submit {
             background-color: var(--accent-purple);
@@ -207,11 +187,8 @@
             transition: background 0.3s;
         }
 
-        .btn-submit:hover {
-            background-color: var(--hover-purple);
-        }
+        .btn-submit:hover { background-color: var(--hover-purple); }
 
-        /* Admin Table */
         .admin-table {
             width: 100%;
             border-collapse: collapse;
@@ -252,7 +229,6 @@
         .btn-edit { background-color: #ffc107; color: #000 !important; }
         .btn-delete { background-color: var(--danger-btn); }
 
-        /* Notification */
         #notification {
             position: fixed;
             bottom: 20px;
@@ -279,18 +255,16 @@
 
     <div class="container">
         
-        <!-- قسم السكربتات المتاح للجميع -->
+        <!-- قسم السكربتات -->
         <section id="public-section" class="section active">
             <h2>قائمة السكربتات</h2>
             <div id="public-grid" class="scripts-grid">
-                <!-- تجري إضافة السكربتات هنا ديناميكياً -->
+                <p style="color: var(--text-muted);">جاري تحميل السكربتات...</p>
             </div>
         </section>
 
         <!-- قسم الإدارة -->
         <section id="admin-section" class="section">
-            
-            <!-- تسجيل دخول الإدارة -->
             <div id="admin-login-box" class="form-box">
                 <h2>دخول الإدارة</h2>
                 <div class="form-group">
@@ -300,12 +274,11 @@
                 <button class="btn-submit" onclick="checkAdminPassword()">دخول</button>
             </div>
 
-            <!-- لوحة التحكم (تظهر بعد تسجيل الدخول) -->
             <div id="admin-dashboard" style="display: none;">
                 <h2>لوحة الإدارة - إضافة / تعديل سكربت</h2>
                 
                 <div class="form-box" style="max-width: 100%;">
-                    <input type="hidden" id="edit-index" value="-1">
+                    <input type="hidden" id="edit-doc-id" value="">
                     <div class="form-group">
                         <label>اسم السكربت</label>
                         <input type="text" id="script-name" placeholder="أدخل اسم السكربت">
@@ -331,7 +304,6 @@
                         </tr>
                     </thead>
                     <tbody id="admin-table-body">
-                        <!-- جدول السكربتات للإدارة -->
                     </tbody>
                 </table>
             </div>
@@ -343,20 +315,23 @@
     <div id="notification">تم نسخ السكربت بنجاح!</div>
 
     <script>
-        // كلمة المرور المحددة
+        // === ضع بيانات Firebase الخاصة بك هنا ===
+        const firebaseConfig = {
+            apiKey: "ضع_API_KEY_هنا",
+            authDomain: "ضع_PROJECT_ID.firebaseapp.com",
+            projectId: "ضع_PROJECT_ID_هنا",
+            storageBucket: "ضع_PROJECT_ID.appspot.com",
+            messagingSenderId: "ضع_SENDER_ID",
+            appId: "ضع_APP_ID"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const ADMIN_PASS = "vtx131211";
-        let isAdminLoggedIn = false;
+        let localScriptsCache = [];
 
-        // استرجاع السكربتات من الذاكرة المحلية (LocalStorage)
-        let scripts = JSON.parse(localStorage.getItem('vtx_scripts')) || [
-            {
-                name: "سكربت تجريبي VTX",
-                image: "https://via.placeholder.com/300/8a2be2/ffffff?text=VTX+Script",
-                code: "print('Welcome to VTX Script!')"
-            }
-        ];
-
-        // التبديل بين الأقسام
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
@@ -369,11 +344,9 @@
             }
         }
 
-        // التحقق من كلمة مرور الإدارة
         function checkAdminPassword() {
             const inputPass = document.getElementById('admin-pass-input').value;
             if (inputPass === ADMIN_PASS) {
-                isAdminLoggedIn = true;
                 document.getElementById('admin-login-box').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
                 renderAdminTable();
@@ -382,134 +355,129 @@
             }
         }
 
-        // عرض السكربتات في الصفحة العامة
+        // الاستماع للتغييرات في قاعدة البيانات مباشرة (Real-time)
+        db.collection("scripts").onSnapshot((snapshot) => {
+            localScriptsCache = [];
+            snapshot.forEach((doc) => {
+                localScriptsCache.push({ id: doc.id, ...doc.data() });
+            });
+            renderPublicScripts();
+            renderAdminTable();
+        }, (error) => {
+            console.error("خطأ في جلب البيانات:", error);
+        });
+
         function renderPublicScripts() {
             const grid = document.getElementById('public-grid');
             grid.innerHTML = '';
 
-            if (scripts.length === 0) {
+            if (localScriptsCache.length === 0) {
                 grid.innerHTML = '<p style="color: var(--text-muted);">لا توجد سكربتات حالياً.</p>';
                 return;
             }
 
-            scripts.forEach((item, index) => {
+            localScriptsCache.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'script-card';
                 card.innerHTML = `
                     <img src="${item.image || 'https://via.placeholder.com/300/16161e/ffffff?text=No+Image'}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300/16161e/ffffff?text=Error+Image'">
                     <div class="script-card-body">
                         <div class="script-title">${item.name}</div>
-                        <button class="btn-take" onclick="copyScript(${index})">أخذ</button>
+                        <button class="btn-take" onclick="copyScriptCode('${item.id}')">أخذ</button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // نسخ السكربت عند الضغط على زر "أخذ"
-        function copyScript(index) {
-            const code = scripts[index].code;
-            navigator.clipboard.writeText(code).then(() => {
-                showNotification();
-            }).catch(err => {
-                alert('حدث خطأ أثناء النسخ');
-            });
+        function copyScriptCode(id) {
+            const target = localScriptsCache.find(s => s.id === id);
+            if (target && target.code) {
+                navigator.clipboard.writeText(target.code).then(() => {
+                    showNotification();
+                });
+            }
         }
 
-        // إشعار النسخ
         function showNotification() {
             const notif = document.getElementById('notification');
             notif.style.display = 'block';
-            setTimeout(() => {
-                notif.style.display = 'none';
-            }, 2000);
+            setTimeout(() => { notif.style.display = 'none'; }, 2000);
         }
 
-        // حفظ / إضافة / تعديل السكربت
-        function saveScript() {
+        // حفظ أو تعديل السكربت في قاعدة البيانات
+        async function saveScript() {
             const name = document.getElementById('script-name').value.trim();
             const image = document.getElementById('script-image').value.trim();
             const code = document.getElementById('script-code').value.trim();
-            const editIndex = parseInt(document.getElementById('edit-index').value);
+            const docId = document.getElementById('edit-doc-id').value;
 
             if (!name || !code) {
-                alert('يرجى ملء اسم السكربت والرمز على الأقل!');
+                alert('يرجى كتابة اسم السكربت والكود!');
                 return;
             }
 
-            if (editIndex === -1) {
-                // إضافة جديد
-                scripts.push({ name, image, code });
-            } else {
-                // تعديل حالي
-                scripts[editIndex] = { name, image, code };
-                document.getElementById('edit-index').value = "-1";
-                document.getElementById('btn-save').innerText = "إدراج";
+            try {
+                if (docId) {
+                    // تعديل
+                    await db.collection("scripts").doc(docId).update({ name, image, code });
+                } else {
+                    // إدراج جديد
+                    await db.collection("scripts").add({ name, image, code, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+                resetForm();
+            } catch (err) {
+                alert("حدث خطأ أثناء الحفظ: " + err.message);
             }
-
-            // حفظ التغييرات وتحديث العرض
-            saveToLocalStorage();
-            resetForm();
-            renderPublicScripts();
-            renderAdminTable();
         }
 
-        // تعديل سكربت
-        function editScript(index) {
-            const item = scripts[index];
-            document.getElementById('script-name').value = item.name;
-            document.getElementById('script-image').value = item.image;
-            document.getElementById('script-code').value = item.code;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('btn-save').innerText = "حفظ التعديلات";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function editScript(id) {
+            const item = localScriptsCache.find(s => s.id === id);
+            if(item) {
+                document.getElementById('script-name').value = item.name;
+                document.getElementById('script-image').value = item.image;
+                document.getElementById('script-code').value = item.code;
+                document.getElementById('edit-doc-id').value = item.id;
+                document.getElementById('btn-save').innerText = "حفظ التعديلات";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
-        // حذف سكربت
-        function deleteScript(index) {
+        async function deleteScript(id) {
             if (confirm('هل أنت تأكد من حذف هذا السكربت؟')) {
-                scripts.splice(index, 1);
-                saveToLocalStorage();
-                renderPublicScripts();
-                renderAdminTable();
+                try {
+                    await db.collection("scripts").doc(id).delete();
+                } catch(err) {
+                    alert("حدث خطأ أثناء الحذف: " + err.message);
+                }
             }
         }
 
-        // عرض السكربتات في جدول الإدارة
         function renderAdminTable() {
             const tbody = document.getElementById('admin-table-body');
             tbody.innerHTML = '';
 
-            scripts.forEach((item, index) => {
+            localScriptsCache.forEach((item) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><img src="${item.image}" onerror="this.src='https://via.placeholder.com/50'"></td>
                     <td>${item.name}</td>
                     <td class="action-btns">
-                        <button class="btn-edit" onclick="editScript(${index})">تعديل</button>
-                        <button class="btn-delete" onclick="deleteScript(${index})">حذف</button>
+                        <button class="btn-edit" onclick="editScript('${item.id}')">تعديل</button>
+                        <button class="btn-delete" onclick="deleteScript('${item.id}')">حذف</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // إعادة ضبط النموذج
         function resetForm() {
             document.getElementById('script-name').value = '';
             document.getElementById('script-image').value = '';
             document.getElementById('script-code').value = '';
-            document.getElementById('edit-index').value = '-1';
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('btn-save').innerText = "إدراج";
         }
-
-        // التخزين المحلي
-        function saveToLocalStorage() {
-            localStorage.setItem('vtx_scripts', JSON.stringify(scripts));
-        }
-
-        // التشغيل المبدئي عند فتح الصفحة
-        renderPublicScripts();
     </script>
 </body>
 </html>
-
