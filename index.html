@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VTX — السكربتات</title>
+<title>VTX — منصة السكربتات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
   :root{
-    --bg:#08070c;
-    --panel:#100e18;
-    --panel-2:#16121f;
-    --line:#2a2438;
+    --bg:#09080e;
+    --panel:#120f1d;
+    --panel-2:#191428;
+    --line:#2e2640;
     --violet:#8b5cf6;
     --violet-2:#c084fc;
     --violet-dim:#4c3a7a;
@@ -23,238 +23,106 @@
     --red-dim:#3a1420;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
   body{
     background:var(--bg);
     color:var(--text);
     font-family:'Tajawal',sans-serif;
     min-height:100vh;
     background-image:
-      radial-gradient(circle at 15% 0%, rgba(139,92,246,.14), transparent 40%),
+      radial-gradient(circle at 15% 0%, rgba(139,92,246,.15), transparent 40%),
       radial-gradient(circle at 85% 20%, rgba(192,132,252,.10), transparent 35%);
-    position:relative;
-    overflow-x:hidden;
-  }
-  body::before{
-    content:"";
-    position:fixed;inset:0;
-    background-image:linear-gradient(rgba(139,92,246,.035) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(139,92,246,.035) 1px, transparent 1px);
-    background-size:42px 42px;
-    pointer-events:none;
-    z-index:0;
   }
   .mono{font-family:'JetBrains Mono',monospace;}
 
-  #global-error{display:none;background:#3a1420;color:#f87171;border-bottom:1px solid #6b2330;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;direction:ltr;word-break:break-all;}
-
   header{
     position:sticky;top:0;z-index:50;
-    background:rgba(8,7,12,.85);
-    backdrop-filter:blur(10px);
+    background:rgba(9,8,14,.85);
+    backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
   }
   .header-inner{
     max-width:1100px;margin:0 auto;
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 20px;
-    flex-wrap:wrap;
-    gap:12px;
+    flex-wrap:wrap;gap:12px;
   }
   .brand{display:flex;align-items:center;gap:10px;}
   .brand-mark{
-    width:38px;height:38px;border-radius:9px;
+    width:40px;height:40px;border-radius:10px;
     background:linear-gradient(135deg,var(--violet),#5b21b6);
     display:flex;align-items:center;justify-content:center;
     font-family:'JetBrains Mono',monospace;font-weight:700;color:#fff;
-    box-shadow:0 0 22px rgba(139,92,246,.55);
-    font-size:15px;
+    box-shadow:0 0 20px rgba(139,92,246,.5);
   }
-  .brand-text{display:flex;flex-direction:column;line-height:1.1;}
-  .brand-text b{font-size:17px;letter-spacing:.5px;}
-  .brand-text span{font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+  .brand-text b{font-size:18px;letter-spacing:1px;}
   nav{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;}
   nav button{
     font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;
     background:transparent;border:none;color:var(--text-dim);
-    padding:9px 16px;border-radius:9px;cursor:pointer;
-    transition:.2s;
+    padding:8px 16px;border-radius:8px;cursor:pointer;transition:.2s;
   }
-  nav button.active{background:var(--violet);color:#fff;box-shadow:0 0 16px rgba(139,92,246,.5);}
-  nav button:not(.active):hover{color:var(--text);background:var(--panel-2);}
+  nav button.active{background:var(--violet);color:#fff;box-shadow:0 0 15px rgba(139,92,246,.4);}
 
-  main{max-width:1100px;margin:0 auto;padding:36px 20px 80px;position:relative;z-index:1;}
-  .hero{margin-bottom:34px;}
-  .eyebrow{
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--violet-2);
-    display:flex;align-items:center;gap:8px;margin-bottom:10px;
-  }
-  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.6s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .hero h1{font-size:30px;font-weight:900;margin-bottom:8px;}
-  .hero p{color:var(--text-dim);font-size:14.5px;max-width:560px;}
+  main{max-width:1100px;margin:0 auto;padding:30px 20px 80px;}
+  .hero{margin-bottom:30px;}
+  .hero h1{font-size:28px;margin-bottom:6px;}
+  .hero p{color:var(--text-dim);font-size:14px;}
 
-  #view-scripts .grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;
-  }
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    overflow:hidden;display:flex;flex-direction:column;
-    transition:.2s;
-  }
-  .card:hover{border-color:var(--violet-dim);transform:translateY(-3px);box-shadow:0 10px 30px rgba(139,92,246,.15);}
-  .card-top{
-    height:150px;background:var(--panel-2);position:relative;overflow:hidden;
-    display:flex;align-items:center;justify-content:center;
-  }
+  /* قسم السكربتات */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .card-top{height:150px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;}
   .card-top img{width:100%;height:100%;object-fit:cover;}
-  .card-top .fallback{font-family:'JetBrains Mono',monospace;color:var(--violet-dim);font-size:34px;}
-  .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1;}
-  .card-body h3{font-size:16px;font-weight:700;}
-  .card-actions{display:flex;gap:8px;margin-top:auto;}
+  .card-body{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;}
+  .card-body h3{font-size:16px;}
   .btn-copy{
-    flex:1;background:var(--green);color:#062010;border:none;border-radius:9px;
-    padding:10px 12px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;
-    cursor:pointer;transition:.15s;
+    width:100%;background:var(--green);color:#062010;border:none;border-radius:8px;
+    padding:10px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;
+    cursor:pointer;transition:.15s;margin-top:auto;
   }
   .btn-copy.copied{background:var(--violet);color:#fff;}
-  .empty{
-    grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-dim);
-    border:1px dashed var(--line);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:13px;
-  }
+  .empty{grid-column:1/-1;text-align:center;padding:50px;color:var(--text-dim);border:1px dashed var(--line);border-radius:14px;}
 
-  #view-redeem{display:none;}
-  .redeem-card{
-    max-width:460px;margin:0 auto;
-    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;
-  }
-  .redeem-card .field{margin-bottom:14px;}
-  .redeem-card label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700;}
-  .redeem-card input{
-    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
-    padding:12px 14px;color:var(--violet-2);font-family:'JetBrains Mono',monospace;font-size:14px;
-  }
-  .redeem-card input:focus{outline:none;border-color:var(--violet);}
-  .redeem-btn{
-    width:100%;background:var(--violet);color:#fff;border:none;border-radius:10px;padding:13px;
-    font-weight:700;font-size:15px;cursor:pointer;font-family:'Tajawal',sans-serif;transition:.15s;
-  }
-  .redeem-btn:disabled{opacity:.5;cursor:not-allowed;}
-  .msg{margin-top:14px;padding:12px 14px;border-radius:9px;font-size:13.5px;font-family:'JetBrains Mono',monospace;display:none;}
-  .msg.ok{display:block;background:var(--green-dim);border:1px solid #1e5030;color:var(--green);}
-  .msg.err{display:block;background:var(--red-dim);border:1px solid #6b2330;color:var(--red);}
-  .redeem-result{
-    margin-top:18px;background:var(--panel-2);border:1px dashed var(--violet-dim);border-radius:10px;padding:18px;display:none;
-  }
-  .redeem-result.show{display:block;}
-  .redeem-result h3{margin:0 0 10px;color:var(--violet-2);font-size:15px;}
-  .redeem-result pre{
-    white-space:pre-wrap;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);
-    margin:0 0 12px;line-height:1.7;max-height:240px;overflow-y:auto;direction:ltr;text-align:left;
-  }
-
-  #view-admin{display:none;}
-  .gate{max-width:380px;margin:40px auto;text-align:center;}
-  .gate .lock{
-    width:54px;height:54px;border-radius:14px;background:var(--panel);border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:22px;
-  }
-  .gate h2{font-size:19px;margin-bottom:6px;}
-  .gate p{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
-  .gate input{
-    width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:13px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;
-    text-align:center;letter-spacing:2px;
-  }
-  .gate button{
-    width:100%;margin-top:12px;background:var(--violet);color:#fff;border:none;border-radius:10px;
-    padding:13px;font-family:'Tajawal',sans-serif;font-weight:700;font-size:14.5px;cursor:pointer;
-  }
-  .gate .err{color:#f87171;font-size:12.5px;margin-top:10px;height:14px;}
-
-  #admin-dash{display:none;}
-  .admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-  .admin-head .badge{
-    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);
-    background:var(--green-dim);border:1px solid #1e5030;padding:5px 10px;border-radius:20px;
-  }
-  .logout{background:transparent;border:1px solid var(--line);color:var(--text-dim);border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:'Tajawal',sans-serif;}
-
-  .admin-tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:22px;}
-  .admin-tabs button{
-    flex:1;font-family:'Tajawal',sans-serif;font-weight:700;font-size:14px;
-    background:transparent;border:none;color:var(--text-dim);
-    padding:10px 14px;border-radius:9px;cursor:pointer;transition:.2s;
-  }
-  .admin-tabs button.active{background:var(--violet);color:#fff;box-shadow:0 0 16px rgba(139,92,246,.5);}
-
-  .admin-section{display:none;}
-  .admin-section.active{display:block;}
-
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:24px;}
-  .panel h3{font-size:16px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-  .panel h3 .tag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--violet-2);border:1px solid var(--violet-dim);padding:2px 8px;border-radius:6px;}
-
+  /* قسم استلام كود */
+  .redeem-card{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700;}
   .field input, .field textarea{
-    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;
-    padding:11px 13px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:14px;
+    width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:14px;
   }
-  .field textarea{font-family:'JetBrains Mono',monospace;font-size:13px;min-height:130px;resize:vertical;direction:ltr;text-align:left;}
+  .field textarea{min-height:100px;font-family:'JetBrains Mono',monospace;direction:ltr;text-align:left;}
   .field input:focus, .field textarea:focus{outline:none;border-color:var(--violet);}
-  .field small{display:block;margin-top:5px;color:var(--text-dim);font-size:11.5px;}
+  
+  .submit-btn{width:100%;background:var(--violet);color:#fff;border:none;border-radius:8px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
+  .msg{margin-top:14px;padding:10px;border-radius:8px;font-size:13px;display:none;}
+  .msg.ok{background:var(--green-dim);color:var(--green);border:1px solid #1e5030;}
+  .msg.err{background:var(--red-dim);color:var(--red);border:1px solid #6b2330;}
+  .redeem-result{margin-top:15px;background:var(--panel-2);border:1px dashed var(--violet-dim);border-radius:8px;padding:14px;display:none;}
+  .redeem-result pre{white-space:pre-wrap;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;}
 
-  .submit-btn{
-    background:var(--violet);color:#fff;border:none;border-radius:10px;padding:12px 22px;
-    font-weight:700;font-size:14px;cursor:pointer;font-family:'Tajawal',sans-serif;
-  }
-  .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
-  .cancel-btn{
-    background:transparent;color:var(--text-dim);border:1px solid var(--line);border-radius:10px;padding:12px 18px;
-    font-size:14px;cursor:pointer;font-family:'Tajawal',sans-serif;margin-inline-start:8px;
-  }
-
-  .manage-row{
-    display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:var(--panel-2);
-  }
-  .manage-row img{width:46px;height:46px;border-radius:8px;object-fit:cover;background:var(--panel);flex-shrink:0;}
-  .manage-row .mimg-fallback{width:46px;height:46px;border-radius:8px;background:var(--panel);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--violet-dim);font-family:'JetBrains Mono',monospace;}
-  .manage-row .minfo{flex:1;min-width:0;}
-  .manage-row .minfo b{display:block;font-size:14.5px;}
-  .manage-row .minfo span{display:block;font-size:11.5px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
-  .mrow-actions{display:flex;gap:6px;}
-  .mrow-actions button{
-    border:none;border-radius:8px;padding:8px 12px;font-size:12.5px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;
-  }
+  /* لوحة الإدارة */
+  .gate{max-width:360px;margin:40px auto;text-align:center;}
+  .gate input{text-align:center;letter-spacing:2px;margin-bottom:12px;}
+  .admin-tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:20px;}
+  .admin-tabs button{flex:1;background:transparent;border:none;color:var(--text-dim);padding:10px;border-radius:8px;cursor:pointer;font-weight:700;}
+  .admin-tabs button.active{background:var(--violet);color:#fff;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px;}
+  .manage-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--panel-2);}
+  .mrow-actions button{border:none;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;margin-inline-start:4px;font-weight:700;}
   .medit{background:var(--violet-dim);color:#fff;}
   .mdel{background:var(--red-dim);color:var(--red);}
-  .no-items{color:var(--text-dim);font-size:13px;text-align:center;padding:20px;font-family:'JetBrains Mono',monospace;}
 
-  .status-avail{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:11.5px;}
-  .status-used{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11.5px;}
-
-  footer{text-align:center;padding:24px;color:var(--text-dim);font-size:12px;font-family:'JetBrains Mono',monospace;border-top:1px solid var(--line);position:relative;z-index:1;}
-
-  @media(max-width:640px){
-    .header-inner{flex-direction:column;gap:12px;align-items:stretch;}
-    nav{justify-content:center;flex-wrap:wrap;}
-    .hero h1{font-size:24px;}
-  }
+  @media(max-width:640px){.header-inner{flex-direction:column;align-items:stretch;}}
 </style>
 </head>
 <body>
 
-<div id="global-error"></div>
-
 <header>
   <div class="header-inner">
     <div class="brand">
-      <div class="brand-mark">VX</div>
-      <div class="brand-text">
-        <b>VTX</b>
-        <span>SCRIPT HUB</span>
-      </div>
+      <div class="brand-mark">VTX</div>
+      <div class="brand-text"><b>VTX HUB</b></div>
     </div>
     <nav>
       <button id="nav-scripts" class="active" onclick="showView('scripts')">السكربتات</button>
@@ -266,105 +134,105 @@
 
 <main>
 
+  <!-- صفحة معرض السكربتات -->
   <section id="view-scripts">
     <div class="hero">
-      <div class="eyebrow"><span class="dot"></span> vtx / scripts.gallery</div>
-      <h1>مكتبة سكربتات VTX</h1>
-      <p>كل السكربتات اللي ينزلها فريق الإدارة تلقاها هنا. اضغط "أخذ" ويتم نسخ السكربت مباشرة.</p>
+      <h1>مكتبة السكربتات</h1>
+      <p>تصفح واحرص على نسخ السكربت بضغطة زر واحده.</p>
     </div>
-    <div class="grid" id="scripts-grid"><div class="empty">...جاري التحميل</div></div>
+    <div class="grid" id="scripts-grid"><div class="empty">جاري التحميل...</div></div>
   </section>
 
-  <section id="view-redeem">
+  <!-- صفحة استلام الكود -->
+  <section id="view-redeem" style="display:none;">
     <div class="hero">
-      <div class="eyebrow"><span class="dot"></span> vtx / redeem.codes</div>
       <h1>استلام كود</h1>
-      <p>دخّل الكود حقك واستلم السكربت المرتبط فيه. كل كود يصلح لمرة وحدة بس.</p>
+      <p>أدخل الكود الخاص بك للحصول على السكربت.</p>
     </div>
     <div class="redeem-card">
       <div class="field">
         <label>الكود</label>
-        <input type="text" id="redeem-code-input" placeholder="مثال: VTX-2026-XXXX" autocomplete="off">
+        <input type="text" id="redeem-code-input" placeholder="أدخل الكود هنا">
       </div>
-      <button class="redeem-btn" id="redeem-btn" onclick="redeemCode()">استلام</button>
+      <button class="submit-btn" id="redeem-btn" onclick="redeemCode()">استلام</button>
       <div class="msg" id="redeem-msg"></div>
       <div class="redeem-result" id="redeem-result">
-        <h3 id="redeem-result-title"></h3>
+        <b id="redeem-result-title"></b>
         <pre id="redeem-result-content"></pre>
       </div>
     </div>
   </section>
 
-  <section id="view-admin">
+  <!-- صفحة الإدارة -->
+  <section id="view-admin" style="display:none;">
 
+    <!-- بوابه الدخول -->
     <div id="admin-gate" class="gate">
-      <div class="lock">🔒</div>
       <h2>دخول الإدارة</h2>
-      <p>هذا القسم مخصص لفريق الإدارة فقط. أدخل كلمة المرور للمتابعة.</p>
-      <input type="password" id="pw-input" class="mono" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
-      <button onclick="checkPassword()">دخول</button>
-      <div class="err" id="pw-err"></div>
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:15px;">أدخل كلمة المرور للمتابعة</p>
+      <div class="field">
+        <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+      </div>
+      <button class="submit-btn" onclick="checkPassword()">دخول</button>
+      <div class="msg err" id="pw-err" style="display:none;margin-top:10px;">كلمة المرور غير صحيحة!</div>
     </div>
 
-    <div id="admin-dash">
-      <div class="admin-head">
-        <span class="badge">● متصل كمسؤول</span>
-        <button class="logout" onclick="logoutAdmin()">تسجيل خروج</button>
-      </div>
-
+    <!-- لوحة التحكم -->
+    <div id="admin-dash" style="display:none;">
       <div class="admin-tabs">
-        <button id="atab-scripts" class="active" onclick="showAdminTab('scripts')">إدارة السكربتات</button>
-        <button id="atab-codes" onclick="showAdminTab('codes')">إدارة أكواد الريديم</button>
+        <button id="atab-scripts" class="active" onclick="showAdminTab('scripts')">إنشاء سكربتات</button>
+        <button id="atab-codes" onclick="showAdminTab('codes')">إنشاء أكواد</button>
       </div>
 
-      <div id="admin-section-scripts" class="admin-section active">
+      <!-- تبويب السكربتات -->
+      <div id="admin-sec-scripts">
         <div class="panel">
-          <h3 id="form-title">إضافة سكربت جديد <span class="tag">new</span></h3>
+          <h3 id="form-title" style="margin-bottom:12px;">إضافة سكربت جديد</h3>
           <input type="hidden" id="edit-id" value="">
           <div class="field">
             <label>اسم السكربت</label>
-            <input type="text" id="f-name" placeholder="مثال: أوتو فارم — سكربت رقم 1">
+            <input type="text" id="f-name" placeholder="مثال: أوتو فارم">
           </div>
           <div class="field">
-            <label>رابط صورة السكربت</label>
+            <label>رابط الصورة</label>
             <input type="text" id="f-image" placeholder="https://...">
-            <small>اتركه فارغًا لعرض أيقونة افتراضية.</small>
           </div>
           <div class="field">
             <label>كود السكربت</label>
-            <textarea id="f-code" placeholder="loadstring(...)"></textarea>
+            <textarea id="f-code" placeholder="loadstring(...)()"></textarea>
           </div>
-          <button class="submit-btn" id="submit-btn" onclick="saveScript()">إدراج</button>
-          <button class="cancel-btn" id="cancel-edit-btn" style="display:none" onclick="resetForm()">إلغاء التعديل</button>
+          <button class="submit-btn" id="save-script-btn" onclick="saveScript()">إدراج</button>
+          <button class="submit-btn" id="cancel-btn" onclick="resetForm()" style="display:none;background:transparent;border:1px solid var(--line);margin-top:6px;">إلغاء التعديل</button>
         </div>
 
         <div class="panel">
-          <h3>السكربتات الحالية <span class="tag" id="count-tag">0</span></h3>
-          <div id="manage-list"></div>
+          <h3 style="margin-bottom:12px;">السكربتات المضافة</h3>
+          <div id="manage-scripts-list"></div>
         </div>
       </div>
 
-      <div id="admin-section-codes" class="admin-section">
+      <!-- تبويب الأكواد -->
+      <div id="admin-sec-codes" style="display:none;">
         <div class="panel">
-          <h3>إضافة كود جديد <span class="tag">new</span></h3>
+          <h3 style="margin-bottom:12px;">إضافة كود جديد</h3>
           <div class="field">
             <label>الكود</label>
-            <input type="text" id="c-code" placeholder="VTX-XXXX">
+            <input type="text" id="c-code" placeholder="مثال: VTX-1234">
           </div>
           <div class="field">
-            <label>اسم السكربت المرتبط</label>
-            <input type="text" id="c-title" placeholder="اسم السكربت">
+            <label>اسم السكربت / العنوان</label>
+            <input type="text" id="c-title" placeholder="عنوان السكربت">
           </div>
           <div class="field">
-            <label>النص / الرابط</label>
-            <textarea id="c-content" placeholder="الصق النص أو الرابط هنا..."></textarea>
+            <label>السكربت المرتبط</label>
+            <textarea id="c-content" placeholder="ضع السكربت الذي سيظهر للمستخدم هنا..."></textarea>
           </div>
-          <button class="submit-btn" id="c-add-btn" onclick="addCode()">إضافة الكود</button>
+          <button class="submit-btn" onclick="addCode()">إضافة الكود</button>
         </div>
 
         <div class="panel">
-          <h3>الأكواد الحالية <span class="tag" id="codes-count-tag">0</span></h3>
-          <div id="codes-list"></div>
+          <h3 style="margin-bottom:12px;">الأكواد المضافة</h3>
+          <div id="manage-codes-list"></div>
         </div>
       </div>
 
@@ -374,91 +242,267 @@
 
 </main>
 
-<footer>VTX © built for the community — الأمان أولاً، شغّل السكربتات على مسؤوليتك</footer>
-
 <script>
-function showGlobalError(text){
-  var el = document.getElementById('global-error');
-  el.textContent = 'خطأ: ' + text;
-  el.style.display = 'block';
-}
-window.onerror = function(msg, src, line){ showGlobalError(msg + ' (line ' + line + ')'); };
-window.addEventListener('unhandledrejection', function(e){
-  showGlobalError((e.reason && (e.reason.message || e.reason)) || 'unhandled error');
-});
-
-// ================= FIRESTORE REST HELPERS =================
+// ================= Firebase REST Configuration =================
 var PROJECT_ID = "vtx1-b3a80";
 var BASE_URL = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents";
 
 function toFields(obj){
   var fields = {};
   for(var k in obj){
-    var v = obj[k];
-    if(typeof v === 'string') fields[k] = {stringValue: v};
-    else if(typeof v === 'number') fields[k] = {doubleValue: v};
-    else if(typeof v === 'boolean') fields[k] = {booleanValue: v};
-    else fields[k] = {stringValue: String(v)};
+    fields[k] = { stringValue: String(obj[k] !== undefined ? obj[k] : '') };
   }
   return fields;
 }
+
 function fromFields(fields){
   var obj = {};
   fields = fields || {};
   for(var k in fields){
     var f = fields[k];
-    if('stringValue' in f) obj[k] = f.stringValue;
-    else if('doubleValue' in f) obj[k] = f.doubleValue;
-    else if('integerValue' in f) obj[k] = Number(f.integerValue);
-    else if('booleanValue' in f) obj[k] = f.booleanValue;
-    else obj[k] = null;
+    obj[k] = f.stringValue || f.integerValue || f.booleanValue || '';
   }
   return obj;
 }
-function idFromName(name){
-  var parts = name.split('/');
-  return parts[parts.length - 1];
+
+async function dbList(coll){
+  try {
+    var res = await fetch(BASE_URL + '/' + coll);
+    var data = await res.json();
+    if(!data.documents) return [];
+    return data.documents.map(d => {
+      var parts = d.name.split('/');
+      return Object.assign({ id: parts[parts.length - 1] }, fromFields(d.fields));
+    });
+  } catch(e){ return []; }
 }
 
-async function fsList(collectionName){
-  var res = await fetch(BASE_URL + '/' + collectionName);
-  var data = await res.json();
-  if(!res.ok) throw new Error((data.error && data.error.message) || 'fetch failed');
-  var out = [];
-  (data.documents || []).forEach(function(docItem){
-    out.push(Object.assign({ id: idFromName(docItem.name) }, fromFields(docItem.fields)));
-  });
-  return out;
-}
-async function fsGet(collectionName, id){
-  var res = await fetch(BASE_URL + '/' + collectionName + '/' + encodeURIComponent(id));
-  if(res.status === 404) return null;
-  var data = await res.json();
-  if(!res.ok) throw new Error((data.error && data.error.message) || 'fetch failed');
-  return fromFields(data.fields);
-}
-async function fsSet(collectionName, id, obj){
-  var res = await fetch(BASE_URL + '/' + collectionName + '/' + encodeURIComponent(id), {
+async function dbSet(coll, id, dataObj){
+  await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id), {
     method: 'PATCH',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ fields: toFields(obj) })
+    body: JSON.stringify({ fields: toFields(dataObj) })
   });
-  var data = await res.json();
-  if(!res.ok) throw new Error((data.error && data.error.message) || 'save failed');
-  return data;
 }
-async function fsDelete(collectionName, id){
-  var res = await fetch(BASE_URL + '/' + collectionName + '/' + encodeURIComponent(id), { method: 'DELETE' });
-  if(!res.ok){
-    var data = await res.json().catch(function(){return {};});
-    throw new Error((data.error && data.error.message) || 'delete failed');
+
+async function dbGet(coll, id){
+  var res = await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id));
+  if(res.status === 404) return null;
+  var data = await res.json();
+  return fromFields(data.fields);
+}
+
+async function dbDelete(coll, id){
+  await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id), { method: 'DELETE' });
+}
+
+// ================= Global States =================
+var ADMIN_PASS = "vtx131211";
+var scriptsList = [];
+var codesList = [];
+
+// ================= Navigation =================
+function showView(v){
+  document.getElementById('view-scripts').style.display = v==='scripts'?'block':'none';
+  document.getElementById('view-redeem').style.display = v==='redeem'?'block':'none';
+  document.getElementById('view-admin').style.display = v==='admin'?'block':'none';
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + v).classList.add('active');
+}
+
+function showAdminTab(t){
+  document.getElementById('admin-sec-scripts').style.display = t==='scripts'?'block':'none';
+  document.getElementById('admin-sec-codes').style.display = t==='codes'?'block':'none';
+  document.getElementById('atab-scripts').className = t==='scripts'?'active':'';
+  document.getElementById('atab-codes').className = t==='codes'?'active':'';
+}
+
+// ================= Scripts Methods =================
+async function loadScripts(){
+  scriptsList = await dbList('scripts');
+  renderScripts();
+  renderManageScripts();
+}
+
+function renderScripts(){
+  var grid = document.getElementById('scripts-grid');
+  grid.innerHTML = '';
+  if(!scriptsList.length){
+    grid.innerHTML = '<div class="empty">لا توجد سكربتات مضافة حالياً.</div>';
+    return;
+  }
+  scriptsList.forEach(s => {
+    var img = s.image ? `<img src="${s.image}" onerror="this.remove()">` : '';
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">${img || '<span style="color:var(--violet-dim);font-weight:700;">VTX</span>'}</div>
+      <div class="card-body">
+        <h3>${s.name}</h3>
+        <button class="btn-copy" onclick="copyCode('${s.id}', this)">أخذ</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function copyCode(id, btn){
+  var item = scriptsList.find(x => x.id === id);
+  if(item && item.code){
+    navigator.clipboard.writeText(item.code);
+    btn.textContent = 'تم النسخ!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'أخذ'; btn.classList.remove('copied'); }, 2000);
   }
 }
 
-// ================= STATE =================
-var ADMIN_PASSWORD = "vtx131211";
-var scripts = [];
-var redeemCodes = [];
+async function saveScript(){
+  var name = document.getElementById('f-name').value.trim();
+  var image = document.getElementById('f-image').value.trim();
+  var code = document.getElementById('f-code').value.trim();
+  var editId = document.getElementById('edit-id').value;
 
-// ================= NAVIGATION =================
-function show
+  if(!name || !code) return alert('الرجاء تعبئة الاسم والكود');
+
+  var id = editId || ('s_' + Date.now());
+  await dbSet('scripts', id, { name, image, code });
+  resetForm();
+  loadScripts();
+}
+
+function renderManageScripts(){
+  var box = document.getElementById('manage-scripts-list');
+  box.innerHTML = '';
+  if(!scriptsList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا يوجد سكربتات.</div>'; return; }
+  
+  scriptsList.forEach(s => {
+    var row = document.createElement('div');
+    row.className = 'manage-row';
+    row.innerHTML = `
+      <span>${s.name}</span>
+      <div class="mrow-actions">
+        <button class="medit" onclick="editScript('${s.id}')">تعديل</button>
+        <button class="mdel" onclick="deleteScript('${s.id}')">حذف</button>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+function editScript(id){
+  var s = scriptsList.find(x => x.id === id);
+  if(s){
+    document.getElementById('f-name').value = s.name;
+    document.getElementById('f-image').value = s.image;
+    document.getElementById('f-code').value = s.code;
+    document.getElementById('edit-id').value = s.id;
+    document.getElementById('form-title').textContent = 'تعديل السكربت';
+    document.getElementById('save-script-btn').textContent = 'تحديث التعديلات';
+    document.getElementById('cancel-btn').style.display = 'block';
+  }
+}
+
+function resetForm(){
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-image').value = '';
+  document.getElementById('f-code').value = '';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('form-title').textContent = 'إضافة سكربت جديد';
+  document.getElementById('save-script-btn').textContent = 'إدراج';
+  document.getElementById('cancel-btn').style.display = 'none';
+}
+
+async function deleteScript(id){
+  if(confirm('هل تريد حذف هذا السكربت؟')){
+    await dbDelete('scripts', id);
+    loadScripts();
+  }
+}
+
+// ================= Redeem Codes Methods =================
+async function loadCodes(){
+  codesList = await dbList('codes');
+  renderManageCodes();
+}
+
+async function addCode(){
+  var code = document.getElementById('c-code').value.trim();
+  var title = document.getElementById('c-title').value.trim();
+  var content = document.getElementById('c-content').value.trim();
+
+  if(!code || !content) return alert('ضع الكود والسكربت المرتبط به');
+
+  await dbSet('codes', code, { title: title || 'سكربت خاص', content: content });
+  document.getElementById('c-code').value = '';
+  document.getElementById('c-title').value = '';
+  document.getElementById('c-content').value = '';
+  loadCodes();
+}
+
+function renderManageCodes(){
+  var box = document.getElementById('manage-codes-list');
+  box.innerHTML = '';
+  if(!codesList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا توجد أكواد.</div>'; return; }
+
+  codesList.forEach(c => {
+    var row = document.createElement('div');
+    row.className = 'manage-row';
+    row.innerHTML = `
+      <span><b>${c.id}</b> — ${c.title}</span>
+      <div class="mrow-actions">
+        <button class="mdel" onclick="deleteCode('${c.id}')">حذف</button>
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+async function deleteCode(id){
+  if(confirm('حذف الكود؟')){
+    await dbDelete('codes', id);
+    loadCodes();
+  }
+}
+
+async function redeemCode(){
+  var input = document.getElementById('redeem-code-input').value.trim();
+  var msg = document.getElementById('redeem-msg');
+  var resBox = document.getElementById('redeem-result');
+
+  if(!input) return;
+
+  var item = await dbGet('codes', input);
+  if(item){
+    msg.className = 'msg ok';
+    msg.textContent = 'تم استلام السكربت بنجاح!';
+    msg.style.display = 'block';
+    document.getElementById('redeem-result-title').textContent = item.title;
+    document.getElementById('redeem-result-content').textContent = item.content;
+    resBox.style.display = 'block';
+  } else {
+    msg.className = 'msg err';
+    msg.textContent = 'الكود غير صحيح أو غير موجود!';
+    msg.style.display = 'block';
+    resBox.style.display = 'none';
+  }
+}
+
+// ================= Admin Auth =================
+function checkPassword(){
+  var val = document.getElementById('pw-input').value;
+  if(val === ADMIN_PASS){
+    document.getElementById('admin-gate').style.display = 'none';
+    document.getElementById('admin-dash').style.display = 'block';
+    loadCodes();
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+  }
+}
+
+// Start
+window.onload = function(){
+  loadScripts();
+};
+</script>
+</body>
+</html>
