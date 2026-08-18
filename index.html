@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VTX - منصة السكربتات</title>
-    <!-- استدعاء Firebase SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
@@ -255,15 +255,13 @@
 
     <div class="container">
         
-        <!-- قسم السكربتات -->
         <section id="public-section" class="section active">
             <h2>قائمة السكربتات</h2>
             <div id="public-grid" class="scripts-grid">
-                <p style="color: var(--text-muted);">جاري تحميل السكربتات...</p>
+                <p style="color: var(--text-muted);">جاري الاتصال بـ Firebase...</p>
             </div>
         </section>
 
-        <!-- قسم الإدارة -->
         <section id="admin-section" class="section">
             <div id="admin-login-box" class="form-box">
                 <h2>دخول الإدارة</h2>
@@ -315,17 +313,17 @@
     <div id="notification">تم نسخ السكربت بنجاح!</div>
 
     <script>
-        // === ضع بيانات Firebase الخاصة بك هنا ===
+        // تم دمج بيانات مشروعك VTX1 بنجاح
         const firebaseConfig = {
-            apiKey: "ضع_API_KEY_هنا",
-            authDomain: "ضع_PROJECT_ID.firebaseapp.com",
-            projectId: "ضع_PROJECT_ID_هنا",
-            storageBucket: "ضع_PROJECT_ID.appspot.com",
-            messagingSenderId: "ضع_SENDER_ID",
-            appId: "ضع_APP_ID"
+            apiKey: "AIzaSyDMzKMQxLo8mz15l88IY2bZWvuBij9eegc",
+            authDomain: "vtx1-b3a80.firebaseapp.com",
+            projectId: "vtx1-b3a80",
+            storageBucket: "vtx1-b3a80.firebasestorage.app",
+            messagingSenderId: "513971082664",
+            appId: "1:513971082664:web:5619ed3064761a159cf99d",
+            measurementId: "G-8Q5KEMK99R"
         };
 
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -355,8 +353,8 @@
             }
         }
 
-        // الاستماع للتغييرات في قاعدة البيانات مباشرة (Real-time)
-        db.collection("scripts").onSnapshot((snapshot) => {
+        // الاستماع التلقائي لقاعدة بيانات vtx1
+        db.collection("vtx_scripts").onSnapshot((snapshot) => {
             localScriptsCache = [];
             snapshot.forEach((doc) => {
                 localScriptsCache.push({ id: doc.id, ...doc.data() });
@@ -364,7 +362,8 @@
             renderPublicScripts();
             renderAdminTable();
         }, (error) => {
-            console.error("خطأ في جلب البيانات:", error);
+            console.error("Firebase Error:", error);
+            document.getElementById('public-grid').innerHTML = '<p style="color: var(--text-muted);">يرجى التأكد من إنشاء Firestore Database داخل المشروع.</p>';
         });
 
         function renderPublicScripts() {
@@ -383,18 +382,20 @@
                     <img src="${item.image || 'https://via.placeholder.com/300/16161e/ffffff?text=No+Image'}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300/16161e/ffffff?text=Error+Image'">
                     <div class="script-card-body">
                         <div class="script-title">${item.name}</div>
-                        <button class="btn-take" onclick="copyScriptCode('${item.id}')">أخذ</button>
+                        <button class="btn-take" onclick="copyScript('${item.id}')">أخذ</button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function copyScriptCode(id) {
-            const target = localScriptsCache.find(s => s.id === id);
-            if (target && target.code) {
-                navigator.clipboard.writeText(target.code).then(() => {
+        function copyScript(id) {
+            const item = localScriptsCache.find(s => s.id === id);
+            if (item && item.code) {
+                navigator.clipboard.writeText(item.code).then(() => {
                     showNotification();
+                }).catch(() => {
+                    alert('حدث خطأ أثناء النسخ');
                 });
             }
         }
@@ -405,7 +406,6 @@
             setTimeout(() => { notif.style.display = 'none'; }, 2000);
         }
 
-        // حفظ أو تعديل السكربت في قاعدة البيانات
         async function saveScript() {
             const name = document.getElementById('script-name').value.trim();
             const image = document.getElementById('script-image').value.trim();
@@ -413,21 +413,19 @@
             const docId = document.getElementById('edit-doc-id').value;
 
             if (!name || !code) {
-                alert('يرجى كتابة اسم السكربت والكود!');
+                alert('يرجى كتابة اسم السكربت والكود الخاص به!');
                 return;
             }
 
             try {
                 if (docId) {
-                    // تعديل
-                    await db.collection("scripts").doc(docId).update({ name, image, code });
+                    await db.collection("vtx_scripts").doc(docId).update({ name, image, code });
                 } else {
-                    // إدراج جديد
-                    await db.collection("scripts").add({ name, image, code, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    await db.collection("vtx_scripts").add({ name, image, code, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 }
                 resetForm();
             } catch (err) {
-                alert("حدث خطأ أثناء الحفظ: " + err.message);
+                alert("حدث خطأ أثناء الحفظ في Firebase: " + err.message);
             }
         }
 
@@ -446,7 +444,7 @@
         async function deleteScript(id) {
             if (confirm('هل أنت تأكد من حذف هذا السكربت؟')) {
                 try {
-                    await db.collection("scripts").doc(id).delete();
+                    await db.collection("vtx_scripts").doc(id).delete();
                 } catch(err) {
                     alert("حدث خطأ أثناء الحذف: " + err.message);
                 }
