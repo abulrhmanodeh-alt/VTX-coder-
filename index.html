@@ -32,7 +32,6 @@
       radial-gradient(circle at 15% 0%, rgba(139,92,246,.15), transparent 40%),
       radial-gradient(circle at 85% 20%, rgba(192,132,252,.10), transparent 35%);
   }
-  .mono{font-family:'JetBrains Mono',monospace;}
 
   header{
     position:sticky;top:0;z-index:50;
@@ -68,7 +67,7 @@
   .hero h1{font-size:28px;margin-bottom:6px;}
   .hero p{color:var(--text-dim);font-size:14px;}
 
-  /* قسم السكربتات */
+  /* السكربتات */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
   .card-top{height:150px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;}
@@ -83,7 +82,7 @@
   .btn-copy.copied{background:var(--violet);color:#fff;}
   .empty{grid-column:1/-1;text-align:center;padding:50px;color:var(--text-dim);border:1px dashed var(--line);border-radius:14px;}
 
-  /* قسم استلام كود */
+  /* استلام كود */
   .redeem-card{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700;}
@@ -101,7 +100,7 @@
   .redeem-result{margin-top:15px;background:var(--panel-2);border:1px dashed var(--violet-dim);border-radius:8px;padding:14px;display:none;}
   .redeem-result pre{white-space:pre-wrap;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;}
 
-  /* لوحة الإدارة */
+  /* الإدارة */
   .gate{max-width:360px;margin:40px auto;text-align:center;}
   .gate input{text-align:center;letter-spacing:2px;margin-bottom:12px;}
   .admin-tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:20px;}
@@ -112,6 +111,9 @@
   .mrow-actions button{border:none;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;margin-inline-start:4px;font-weight:700;}
   .medit{background:var(--violet-dim);color:#fff;}
   .mdel{background:var(--red-dim);color:var(--red);}
+  .badge-status{font-size:12px;padding:3px 8px;border-radius:6px;font-weight:700;display:inline-block;margin-inline-start:6px;}
+  .badge-avail{background:var(--green-dim);color:var(--green);border:1px solid #1e5030;}
+  .badge-used{background:var(--red-dim);color:var(--red);border:1px solid #6b2330;}
 
   @media(max-width:640px){.header-inner{flex-direction:column;align-items:stretch;}}
 </style>
@@ -134,16 +136,14 @@
 
 <main>
 
-  <!-- صفحة معرض السكربتات -->
   <section id="view-scripts">
     <div class="hero">
       <h1>مكتبة السكربتات</h1>
-      <p>تصفح واحرص على نسخ السكربت بضغطة زر واحده.</p>
+      <p>تصفح واحرص على نسخ السكربت بضغطة زر واحدة.</p>
     </div>
     <div class="grid" id="scripts-grid"><div class="empty">جاري التحميل...</div></div>
   </section>
 
-  <!-- صفحة استلام الكود -->
   <section id="view-redeem" style="display:none;">
     <div class="hero">
       <h1>استلام كود</h1>
@@ -163,10 +163,8 @@
     </div>
   </section>
 
-  <!-- صفحة الإدارة -->
   <section id="view-admin" style="display:none;">
 
-    <!-- بوابه الدخول -->
     <div id="admin-gate" class="gate">
       <h2>دخول الإدارة</h2>
       <p style="color:var(--text-dim);font-size:13px;margin-bottom:15px;">أدخل كلمة المرور للمتابعة</p>
@@ -177,14 +175,12 @@
       <div class="msg err" id="pw-err" style="display:none;margin-top:10px;">كلمة المرور غير صحيحة!</div>
     </div>
 
-    <!-- لوحة التحكم -->
     <div id="admin-dash" style="display:none;">
       <div class="admin-tabs">
         <button id="atab-scripts" class="active" onclick="showAdminTab('scripts')">إنشاء سكربتات</button>
         <button id="atab-codes" onclick="showAdminTab('codes')">إنشاء أكواد</button>
       </div>
 
-      <!-- تبويب السكربتات -->
       <div id="admin-sec-scripts">
         <div class="panel">
           <h3 id="form-title" style="margin-bottom:12px;">إضافة سكربت جديد</h3>
@@ -211,7 +207,6 @@
         </div>
       </div>
 
-      <!-- تبويب الأكواد -->
       <div id="admin-sec-codes" style="display:none;">
         <div class="panel">
           <h3 style="margin-bottom:12px;">إضافة كود جديد</h3>
@@ -222,6 +217,10 @@
           <div class="field">
             <label>اسم السكربت / العنوان</label>
             <input type="text" id="c-title" placeholder="عنوان السكربت">
+          </div>
+          <div class="field">
+            <label>عدد الأشخاص المسموح لهم بالاستخدام</label>
+            <input type="number" id="c-max-uses" value="1" min="1" placeholder="مثال: 5">
           </div>
           <div class="field">
             <label>السكربت المرتبط</label>
@@ -243,60 +242,33 @@
 </main>
 
 <script>
-// ================= Firebase REST Configuration =================
-var PROJECT_ID = "vtx1-b3a80";
-var BASE_URL = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents";
+// ================= Firebase Realtime Database Engine =================
+var DB_URL = "https://vtx1-b3a80-default-rtdb.firebaseio.com";
 
-function toFields(obj){
-  var fields = {};
-  for(var k in obj){
-    fields[k] = { stringValue: String(obj[k] !== undefined ? obj[k] : '') };
-  }
-  return fields;
+async function dbGet(path){
+  try{
+    var res = await fetch(DB_URL + '/' + path + '.json');
+    return await res.json();
+  }catch(e){ return null; }
 }
 
-function fromFields(fields){
-  var obj = {};
-  fields = fields || {};
-  for(var k in fields){
-    var f = fields[k];
-    obj[k] = f.stringValue || f.integerValue || f.booleanValue || '';
-  }
-  return obj;
-}
-
-async function dbList(coll){
-  try {
-    var res = await fetch(BASE_URL + '/' + coll);
-    var data = await res.json();
-    if(!data.documents) return [];
-    return data.documents.map(d => {
-      var parts = d.name.split('/');
-      return Object.assign({ id: parts[parts.length - 1] }, fromFields(d.fields));
+async function dbSet(path, data){
+  try{
+    await fetch(DB_URL + '/' + path + '.json', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
     });
-  } catch(e){ return []; }
+  }catch(e){}
 }
 
-async function dbSet(coll, id, dataObj){
-  await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id), {
-    method: 'PATCH',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ fields: toFields(dataObj) })
-  });
+async function dbDelete(path){
+  try{
+    await fetch(DB_URL + '/' + path + '.json', { method: 'DELETE' });
+  }catch(e){}
 }
 
-async function dbGet(coll, id){
-  var res = await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id));
-  if(res.status === 404) return null;
-  var data = await res.json();
-  return fromFields(data.fields);
-}
-
-async function dbDelete(coll, id){
-  await fetch(BASE_URL + '/' + coll + '/' + encodeURIComponent(id), { method: 'DELETE' });
-}
-
-// ================= Global States =================
+// ================= Global Variables =================
 var ADMIN_PASS = "vtx131211";
 var scriptsList = [];
 var codesList = [];
@@ -319,7 +291,13 @@ function showAdminTab(t){
 
 // ================= Scripts Methods =================
 async function loadScripts(){
-  scriptsList = await dbList('scripts');
+  var data = await dbGet('scripts');
+  scriptsList = [];
+  if(data){
+    for(var k in data){
+      scriptsList.push(Object.assign({ id: k }, data[k]));
+    }
+  }
   renderScripts();
   renderManageScripts();
 }
@@ -365,7 +343,7 @@ async function saveScript(){
   if(!name || !code) return alert('الرجاء تعبئة الاسم والكود');
 
   var id = editId || ('s_' + Date.now());
-  await dbSet('scripts', id, { name, image, code });
+  await dbSet('scripts/' + id, { name: name, image: image, code: code });
   resetForm();
   loadScripts();
 }
@@ -414,27 +392,41 @@ function resetForm(){
 
 async function deleteScript(id){
   if(confirm('هل تريد حذف هذا السكربت؟')){
-    await dbDelete('scripts', id);
+    await dbDelete('scripts/' + id);
     loadScripts();
   }
 }
 
 // ================= Redeem Codes Methods =================
 async function loadCodes(){
-  codesList = await dbList('codes');
+  var data = await dbGet('codes');
+  codesList = [];
+  if(data){
+    for(var k in data){
+      codesList.push(Object.assign({ id: k }, data[k]));
+    }
+  }
   renderManageCodes();
 }
 
 async function addCode(){
   var code = document.getElementById('c-code').value.trim();
   var title = document.getElementById('c-title').value.trim();
+  var maxUses = parseInt(document.getElementById('c-max-uses').value) || 1;
   var content = document.getElementById('c-content').value.trim();
 
   if(!code || !content) return alert('ضع الكود والسكربت المرتبط به');
 
-  await dbSet('codes', code, { title: title || 'سكربت خاص', content: content });
+  await dbSet('codes/' + code, {
+    title: title || 'سكربت خاص',
+    content: content,
+    maxUses: maxUses,
+    usedCount: 0
+  });
+
   document.getElementById('c-code').value = '';
   document.getElementById('c-title').value = '';
+  document.getElementById('c-max-uses').value = '1';
   document.getElementById('c-content').value = '';
   loadCodes();
 }
@@ -445,10 +437,19 @@ function renderManageCodes(){
   if(!codesList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا توجد أكواد.</div>'; return; }
 
   codesList.forEach(c => {
+    var max = parseInt(c.maxUses) || 1;
+    var used = parseInt(c.usedCount) || 0;
+    var isExpired = used >= max;
+    var statusText = isExpired ? 'نفذ' : 'متوفر';
+    var badgeClass = isExpired ? 'badge-used' : 'badge-avail';
+
     var row = document.createElement('div');
     row.className = 'manage-row';
     row.innerHTML = `
-      <span><b>${c.id}</b> — ${c.title}</span>
+      <div>
+        <b>${c.id}</b> — ${c.title}
+        <span class="badge-status ${badgeClass}">${statusText} (${used}/${max})</span>
+      </div>
       <div class="mrow-actions">
         <button class="mdel" onclick="deleteCode('${c.id}')">حذف</button>
       </div>
@@ -459,7 +460,7 @@ function renderManageCodes(){
 
 async function deleteCode(id){
   if(confirm('حذف الكود؟')){
-    await dbDelete('codes', id);
+    await dbDelete('codes/' + id);
     loadCodes();
   }
 }
@@ -471,14 +472,30 @@ async function redeemCode(){
 
   if(!input) return;
 
-  var item = await dbGet('codes', input);
+  var item = await dbGet('codes/' + input);
   if(item){
+    var max = parseInt(item.maxUses) || 1;
+    var used = parseInt(item.usedCount) || 0;
+
+    if(used >= max){
+      msg.className = 'msg err';
+      msg.textContent = 'عذراً، هذا الكود (نفذ) وتجاوز عدد الاستخدامات المسموح بها!';
+      msg.style.display = 'block';
+      resBox.style.display = 'none';
+      return;
+    }
+
+    used += 1;
+    item.usedCount = used;
+    await dbSet('codes/' + input, item);
+
     msg.className = 'msg ok';
-    msg.textContent = 'تم استلام السكربت بنجاح!';
+    msg.textContent = `تم استلام السكربت بنجاح! [متوفر: ${max - used} استخدام متبقي]`;
     msg.style.display = 'block';
     document.getElementById('redeem-result-title').textContent = item.title;
     document.getElementById('redeem-result-content').textContent = item.content;
     resBox.style.display = 'block';
+
   } else {
     msg.className = 'msg err';
     msg.textContent = 'الكود غير صحيح أو غير موجود!';
