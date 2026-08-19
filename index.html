@@ -112,6 +112,9 @@
   .mrow-actions button{border:none;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;margin-inline-start:4px;font-weight:700;}
   .medit{background:var(--violet-dim);color:#fff;}
   .mdel{background:var(--red-dim);color:var(--red);}
+  .badge-status{font-size:12px;padding:3px 8px;border-radius:6px;font-weight:700;display:inline-block;margin-inline-start:6px;}
+  .badge-avail{background:var(--green-dim);color:var(--green);border:1px solid #1e5030;}
+  .badge-used{background:var(--red-dim);color:var(--red);border:1px solid #6b2330;}
 
   @media(max-width:640px){.header-inner{flex-direction:column;align-items:stretch;}}
 </style>
@@ -138,7 +141,7 @@
   <section id="view-scripts">
     <div class="hero">
       <h1>مكتبة السكربتات</h1>
-      <p>تصفح واحرص على نسخ السكربت بضغطة زر واحده.</p>
+      <p>تصفح واحرص على نسخ السكربت بضغطة زر واحدة.</p>
     </div>
     <div class="grid" id="scripts-grid"><div class="empty">جاري التحميل...</div></div>
   </section>
@@ -166,7 +169,7 @@
   <!-- صفحة الإدارة -->
   <section id="view-admin" style="display:none;">
 
-    <!-- بوابه الدخول -->
+    <!-- بوابة الدخول -->
     <div id="admin-gate" class="gate">
       <h2>دخول الإدارة</h2>
       <p style="color:var(--text-dim);font-size:13px;margin-bottom:15px;">أدخل كلمة المرور للمتابعة</p>
@@ -222,6 +225,10 @@
           <div class="field">
             <label>اسم السكربت / العنوان</label>
             <input type="text" id="c-title" placeholder="عنوان السكربت">
+          </div>
+          <div class="field">
+            <label>عدد الأشخاص المسموح لهم بالاستخدام</label>
+            <input type="number" id="c-max-uses" value="1" min="1" placeholder="مثال: 5">
           </div>
           <div class="field">
             <label>السكربت المرتبط</label>
@@ -428,13 +435,21 @@ async function loadCodes(){
 async function addCode(){
   var code = document.getElementById('c-code').value.trim();
   var title = document.getElementById('c-title').value.trim();
+  var maxUses = parseInt(document.getElementById('c-max-uses').value) || 1;
   var content = document.getElementById('c-content').value.trim();
 
   if(!code || !content) return alert('ضع الكود والسكربت المرتبط به');
 
-  await dbSet('codes', code, { title: title || 'سكربت خاص', content: content });
+  await dbSet('codes', code, {
+    title: title || 'سكربت خاص',
+    content: content,
+    maxUses: maxUses,
+    usedCount: 0
+  });
+
   document.getElementById('c-code').value = '';
   document.getElementById('c-title').value = '';
+  document.getElementById('c-max-uses').value = '1';
   document.getElementById('c-content').value = '';
   loadCodes();
 }
@@ -445,10 +460,19 @@ function renderManageCodes(){
   if(!codesList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا توجد أكواد.</div>'; return; }
 
   codesList.forEach(c => {
+    var max = parseInt(c.maxUses) || 1;
+    var used = parseInt(c.usedCount) || 0;
+    var isExpired = used >= max;
+    var statusText = isExpired ? 'نفذ' : 'متوفر';
+    var badgeClass = isExpired ? 'badge-used' : 'badge-avail';
+
     var row = document.createElement('div');
     row.className = 'manage-row';
     row.innerHTML = `
-      <span><b>${c.id}</b> — ${c.title}</span>
+      <div>
+        <b>${c.id}</b> — ${c.title}
+        <span class="badge-status ${badgeClass}">${statusText} (${used}/${max})</span>
+      </div>
       <div class="mrow-actions">
         <button class="mdel" onclick="deleteCode('${c.id}')">حذف</button>
       </div>
@@ -473,36 +497,30 @@ async function redeemCode(){
 
   var item = await dbGet('codes', input);
   if(item){
+    var max = parseInt(item.maxUses) || 1;
+    var used = parseInt(item.usedCount) || 0;
+
+    if(used >= max){
+      msg.className = 'msg err';
+      msg.textContent = 'عذراً، هذا الكود (نفذ) وتجاوز عدد الاستخدامات المسموح بها!';
+      msg.style.display = 'block';
+      resBox.style.display = 'none';
+      return;
+    }
+
+    // زيادة عدد الاستخدامات وتحديث الكود في قاعدة البيانات
+    used += 1;
+    item.usedCount = used;
+    await dbSet('codes', input, item);
+
     msg.className = 'msg ok';
-    msg.textContent = 'تم استلام السكربت بنجاح!';
+    msg.textContent = `تم استلام السكربت بنجاح! [متوفر: ${max - used} استخدام متبقي]`;
     msg.style.display = 'block';
     document.getElementById('redeem-result-title').textContent = item.title;
     document.getElementById('redeem-result-content').textContent = item.content;
     resBox.style.display = 'block';
+
   } else {
     msg.className = 'msg err';
     msg.textContent = 'الكود غير صحيح أو غير موجود!';
-    msg.style.display = 'block';
-    resBox.style.display = 'none';
-  }
-}
-
-// ================= Admin Auth =================
-function checkPassword(){
-  var val = document.getElementById('pw-input').value;
-  if(val === ADMIN_PASS){
-    document.getElementById('admin-gate').style.display = 'none';
-    document.getElementById('admin-dash').style.display = 'block';
-    loadCodes();
-  } else {
-    document.getElementById('pw-err').style.display = 'block';
-  }
-}
-
-// Start
-window.onload = function(){
-  loadScripts();
-};
-</script>
-</body>
-</html>
+    msg.style.
