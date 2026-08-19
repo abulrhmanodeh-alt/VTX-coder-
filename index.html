@@ -6,6 +6,11 @@
 <title>VTX — منصة السكربتات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<!-- مكتبات Firebase بأسلوب Compat / CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
 <style>
   :root{
     --bg:#09080e;
@@ -241,10 +246,7 @@
 
 </main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyDMzKMQxLo8mz15l88IY2bZWvuBij9eegc",
   authDomain: "vtx1-b3a80.firebaseapp.com",
@@ -255,48 +257,45 @@ const firebaseConfig = {
   measurementId: "G-8Q5KEMK99R"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-window.ADMIN_PASS = "vtx131211";
-window.scriptsList = [];
-window.codesList = [];
+var ADMIN_PASS = "vtx131211";
+var scriptsList = [];
+var codesList = [];
 
-window.showView = function(v){
+function showView(v){
   document.getElementById('view-scripts').style.display = v==='scripts'?'block':'none';
   document.getElementById('view-redeem').style.display = v==='redeem'?'block':'none';
   document.getElementById('view-admin').style.display = v==='admin'?'block':'none';
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + v).classList.add('active');
-};
+}
 
-window.showAdminTab = function(t){
+function showAdminTab(t){
   document.getElementById('admin-sec-scripts').style.display = t==='scripts'?'block':'none';
   document.getElementById('admin-sec-codes').style.display = t==='codes'?'block':'none';
   document.getElementById('atab-scripts').className = t==='scripts'?'active':'';
   document.getElementById('atab-codes').className = t==='codes'?'active':'';
-};
+}
 
-window.loadScripts = async function(){
-  try {
-    const snap = await getDocs(collection(db, "scripts"));
-    window.scriptsList = [];
-    snap.forEach(d => window.scriptsList.push({ id: d.id, ...d.data() }));
+function loadScripts(){
+  db.collection("scripts").get().then((snap) => {
+    scriptsList = [];
+    snap.forEach(d => scriptsList.push({ id: d.id, ...d.data() }));
     renderScripts();
     renderManageScripts();
-  } catch(e) {
-    console.error(e);
-  }
-};
+  }).catch(e => console.error(e));
+}
 
 function renderScripts(){
   var grid = document.getElementById('scripts-grid');
   grid.innerHTML = '';
-  if(!window.scriptsList.length){
+  if(!scriptsList.length){
     grid.innerHTML = '<div class="empty">لا توجد سكربتات مضافة حالياً.</div>';
     return;
   }
-  window.scriptsList.forEach(s => {
+  scriptsList.forEach(s => {
     var img = s.image ? `<img src="${s.image}" onerror="this.remove()">` : '';
     var card = document.createElement('div');
     card.className = 'card';
@@ -304,27 +303,24 @@ function renderScripts(){
       <div class="card-top">${img || '<span style="color:var(--violet-dim);font-weight:700;">VTX</span>'}</div>
       <div class="card-body">
         <h3>${s.name}</h3>
-        <button class="btn-copy" id="btn-copy-${s.id}">أخذ</button>
+        <button class="btn-copy" onclick="copyCode('${s.id}', this)">أخذ</button>
       </div>
     `;
     grid.appendChild(card);
-    document.getElementById(`btn-copy-${s.id}`).onclick = function() {
-      window.copyCode(s.id, this);
-    };
   });
 }
 
-window.copyCode = function(id, btn){
-  var item = window.scriptsList.find(x => x.id === id);
+function copyCode(id, btn){
+  var item = scriptsList.find(x => x.id === id);
   if(item && item.code){
     navigator.clipboard.writeText(item.code);
     btn.textContent = 'تم النسخ!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'أخذ'; btn.classList.remove('copied'); }, 2000);
   }
-};
+}
 
-window.saveScript = async function(){
+function saveScript(){
   var name = document.getElementById('f-name').value.trim();
   var image = document.getElementById('f-image').value.trim();
   var code = document.getElementById('f-code').value.trim();
@@ -333,39 +329,33 @@ window.saveScript = async function(){
   if(!name || !code) return alert('الرجاء تعبئة الاسم والكود');
 
   var id = editId || ('s_' + Date.now());
-  await setDoc(doc(db, "scripts", id), { name, image, code });
-  window.resetForm();
-  window.loadScripts();
-};
+  db.collection("scripts").doc(id).set({ name: name, image: image, code: code }).then(() => {
+    resetForm();
+    loadScripts();
+  });
+}
 
 function renderManageScripts(){
   var box = document.getElementById('manage-scripts-list');
   box.innerHTML = '';
-  if(!window.scriptsList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا يوجد سكربتات.</div>'; return; }
+  if(!scriptsList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا يوجد سكربتات.</div>'; return; }
   
-  window.scriptsList.forEach(s => {
+  scriptsList.forEach(s => {
     var row = document.createElement('div');
     row.className = 'manage-row';
     row.innerHTML = `
       <span>${s.name}</span>
       <div class="mrow-actions">
-        <button class="medit" id="btn-edit-${s.id}">تعديل</button>
-        <button class="mdel" id="btn-del-${s.id}">حذف</button>
+        <button class="medit" onclick="editScript('${s.id}')">تعديل</button>
+        <button class="mdel" onclick="deleteScript('${s.id}')">حذف</button>
       </div>
     `;
     box.appendChild(row);
-
-    document.getElementById(`btn-edit-${s.id}`).onclick = function() {
-      window.editScript(s.id);
-    };
-    document.getElementById(`btn-del-${s.id}`).onclick = function() {
-      window.deleteScript(s.id);
-    };
   });
 }
 
-window.editScript = function(id){
-  var s = window.scriptsList.find(x => x.id === id);
+function editScript(id){
+  var s = scriptsList.find(x => x.id === id);
   if(s){
     document.getElementById('f-name').value = s.name;
     document.getElementById('f-image').value = s.image;
@@ -375,9 +365,9 @@ window.editScript = function(id){
     document.getElementById('save-script-btn').textContent = 'تحديث التعديلات';
     document.getElementById('cancel-btn').style.display = 'block';
   }
-};
+}
 
-window.resetForm = function(){
+function resetForm(){
   document.getElementById('f-name').value = '';
   document.getElementById('f-image').value = '';
   document.getElementById('f-code').value = '';
@@ -385,27 +375,25 @@ window.resetForm = function(){
   document.getElementById('form-title').textContent = 'إضافة سكربت جديد';
   document.getElementById('save-script-btn').textContent = 'إدراج';
   document.getElementById('cancel-btn').style.display = 'none';
-};
+}
 
-window.deleteScript = async function(id){
+function deleteScript(id){
   if(confirm('هل تريد حذف هذا السكربت؟')){
-    await deleteDoc(doc(db, "scripts", id));
-    window.loadScripts();
+    db.collection("scripts").doc(id).delete().then(() => {
+      loadScripts();
+    });
   }
-};
+}
 
-window.loadCodes = async function(){
-  try {
-    const snap = await getDocs(collection(db, "codes"));
-    window.codesList = [];
-    snap.forEach(d => window.codesList.push({ id: d.id, ...d.data() }));
+function loadCodes(){
+  db.collection("codes").get().then((snap) => {
+    codesList = [];
+    snap.forEach(d => codesList.push({ id: d.id, ...d.data() }));
     renderManageCodes();
-  } catch(e) {
-    console.error(e);
-  }
-};
+  });
+}
 
-window.addCode = async function(){
+function addCode(){
   var code = document.getElementById('c-code').value.trim();
   var title = document.getElementById('c-title').value.trim();
   var maxUses = parseInt(document.getElementById('c-max-uses').value) || 1;
@@ -413,26 +401,26 @@ window.addCode = async function(){
 
   if(!code || !content) return alert('ضع الكود والسكربت المرتبط به');
 
-  await setDoc(doc(db, "codes", code), {
+  db.collection("codes").doc(code).set({
     title: title || 'سكربت خاص',
     content: content,
     maxUses: maxUses,
     usedCount: 0
+  }).then(() => {
+    document.getElementById('c-code').value = '';
+    document.getElementById('c-title').value = '';
+    document.getElementById('c-max-uses').value = '1';
+    document.getElementById('c-content').value = '';
+    loadCodes();
   });
-
-  document.getElementById('c-code').value = '';
-  document.getElementById('c-title').value = '';
-  document.getElementById('c-max-uses').value = '1';
-  document.getElementById('c-content').value = '';
-  window.loadCodes();
-};
+}
 
 function renderManageCodes(){
   var box = document.getElementById('manage-codes-list');
   box.innerHTML = '';
-  if(!window.codesList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا توجد أكواد.</div>'; return; }
+  if(!codesList.length) { box.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">لا توجد أكواد.</div>'; return; }
 
-  window.codesList.forEach(c => {
+  codesList.forEach(c => {
     var max = parseInt(c.maxUses) || 1;
     var used = parseInt(c.usedCount) || 0;
     var isExpired = used >= max;
@@ -447,66 +435,76 @@ function renderManageCodes(){
         <span class="badge-status ${badgeClass}">${statusText} (${used}/${max})</span>
       </div>
       <div class="mrow-actions">
-        <button class="mdel" id="btn-delcode-${c.id}">حذف</button>
+        <button class="mdel" onclick="deleteCode('${c.id}')">حذف</button>
       </div>
     `;
     box.appendChild(row);
-
-    document.getElementById(`btn-delcode-${c.id}`).onclick = function() {
-      window.deleteCode(c.id);
-    };
   });
 }
 
-window.deleteCode = async function(id){
+function deleteCode(id){
   if(confirm('حذف الكود؟')){
-    await deleteDoc(doc(db, "codes", id));
-    window.loadCodes();
+    db.collection("codes").doc(id).delete().then(() => {
+      loadCodes();
+    });
   }
-};
+}
 
-window.redeemCode = async function(){
+function redeemCode(){
   var input = document.getElementById('redeem-code-input').value.trim();
   var msg = document.getElementById('redeem-msg');
   var resBox = document.getElementById('redeem-result');
 
   if(!input) return;
 
-  var docSnap = await getDoc(doc(db, "codes", input));
-  if(docSnap.exists()){
-    var item = docSnap.data();
-    var max = parseInt(item.maxUses) || 1;
-    var used = parseInt(item.usedCount) || 0;
+  db.collection("codes").doc(input).get().then((docSnap) => {
+    if(docSnap.exists()){
+      var item = docSnap.data();
+      var max = parseInt(item.maxUses) || 1;
+      var used = parseInt(item.usedCount) || 0;
 
-    if(used >= max){
+      if(used >= max){
+        msg.className = 'msg err';
+        msg.textContent = 'عذراً، هذا الكود (نفذ) وتجاوز عدد الاستخدامات المسموح بها!';
+        msg.style.display = 'block';
+        resBox.style.display = 'none';
+        return;
+      }
+
+      used += 1;
+      db.collection("codes").doc(input).update({ usedCount: used }).then(() => {
+        msg.className = 'msg ok';
+        msg.textContent = `تم استلام السكربت بنجاح! [متوفر: ${max - used} استخدام متبقي]`;
+        msg.style.display = 'block';
+        document.getElementById('redeem-result-title').textContent = item.title;
+        document.getElementById('redeem-result-content').textContent = item.content;
+        resBox.style.display = 'block';
+      });
+
+    } else {
       msg.className = 'msg err';
-      msg.textContent = 'عذراً، هذا الكود (نفذ) وتجاوز عدد الاستخدامات المسموح بها!';
+      msg.textContent = 'الكود غير صحيح أو غير موجود!';
       msg.style.display = 'block';
       resBox.style.display = 'none';
-      return;
     }
+  });
+}
 
-    used += 1;
-    await setDoc(doc(db, "codes", input), { usedCount: used }, { merge: true });
-
-    msg.className = 'msg ok';
-    msg.textContent = `تم استلام السكربت بنجاح! [متوفر: ${max - used} استخدام متبقي]`;
-    msg.style.display = 'block';
-    document.getElementById('redeem-result-title').textContent = item.title;
-    document.getElementById('redeem-result-content').textContent = item.content;
-    resBox.style.display = 'block';
-
-  } else {
-    msg.className = 'msg err';
-    msg.textContent = 'الكود غير صحيح أو غير موجود!';
-    msg.style.display = 'block';
-    resBox.style.display = 'none';
-  }
-};
-
-window.checkPassword = function(){
+function checkPassword(){
   var val = document.getElementById('pw-input').value;
-  if(val === window.ADMIN_PASS){
+  if(val === ADMIN_PASS){
     document.getElementById('admin-gate').style.display = 'none';
     document.getElementById('admin-dash').style.display = 'block';
-    windo
+    loadCodes();
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+  }
+}
+
+window.onload = function(){
+  loadScripts();
+};
+</script>
+</body>
+          </html>
+          
