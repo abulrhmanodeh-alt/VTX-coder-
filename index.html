@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 
-<!-- مكتبات Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
@@ -72,7 +71,6 @@
   .hero h1{font-size:28px;margin-bottom:6px;}
   .hero p{color:var(--text-dim);font-size:14px;}
 
-  /* السكربتات */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
   .card-top{height:150px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;}
@@ -87,7 +85,6 @@
   .btn-copy.copied{background:var(--violet);color:#fff;}
   .empty{grid-column:1/-1;text-align:center;padding:50px;color:var(--text-dim);border:1px dashed var(--line);border-radius:14px;}
 
-  /* استلام كود */
   .redeem-card{max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:700;}
@@ -105,7 +102,6 @@
   .redeem-result{margin-top:15px;background:var(--panel-2);border:1px dashed var(--violet-dim);border-radius:8px;padding:14px;display:none;}
   .redeem-result pre{white-space:pre-wrap;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:8px;}
 
-  /* الإدارة */
   .gate{max-width:360px;margin:40px auto;text-align:center;}
   .gate input{text-align:center;letter-spacing:2px;margin-bottom:12px;}
   .admin-tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:20px;}
@@ -287,7 +283,7 @@ function loadScripts(){
     renderManageScripts();
   }).catch((e) => {
     console.error(e);
-    document.getElementById('scripts-grid').innerHTML = '<div class="empty">حدث خطأ أثناء جلب البيانات أو أن قاعدة البيانات فارغة.</div>';
+    document.getElementById('scripts-grid').innerHTML = '<div class="empty">لا توجد سكربتات حالياً.</div>';
   });
 }
 
@@ -457,10 +453,22 @@ function redeemCode(){
   var input = document.getElementById('redeem-code-input').value.trim();
   var msg = document.getElementById('redeem-msg');
   var resBox = document.getElementById('redeem-result');
+  var btn = document.getElementById('redeem-btn');
 
-  if(!input) return;
+  if(!input){
+    msg.className = 'msg err';
+    msg.textContent = 'الرجاء كتابة الكود أولاً!';
+    msg.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'جاري التحقق...';
 
   db.collection("codes").doc(input).get().then((docSnap) => {
+    btn.disabled = false;
+    btn.textContent = 'استلام';
+
     if(docSnap.exists()){
       var item = docSnap.data();
       var max = parseInt(item.maxUses) || 1;
@@ -468,7 +476,7 @@ function redeemCode(){
 
       if(used >= max){
         msg.className = 'msg err';
-        msg.textContent = 'عذراً، هذا الكود (نفذ) وتجاوز عدد الاستخدامات المسموح بها!';
+        msg.textContent = 'عذراً، هذا الكود نفذ وتجاوز عدد الاستخدامات المسموح بها!';
         msg.style.display = 'block';
         resBox.style.display = 'none';
         return;
@@ -490,6 +498,13 @@ function redeemCode(){
       msg.style.display = 'block';
       resBox.style.display = 'none';
     }
+  }).catch((e) => {
+    btn.disabled = false;
+    btn.textContent = 'استلام';
+    msg.className = 'msg err';
+    msg.textContent = 'حدث خطأ في الاتصال، تأكد من إعدادات Rules في Firebase!';
+    msg.style.display = 'block';
+    console.error(e);
   });
 }
 
@@ -500,13 +515,4 @@ function checkPassword(){
     document.getElementById('admin-dash').style.display = 'block';
     loadCodes();
   } else {
-    document.getElementById('pw-err').style.display = 'block';
-  }
-}
-
-window.onload = function(){
-  loadScripts();
-};
-</script>
-</body>
-</html>
+    document.getElementById('
